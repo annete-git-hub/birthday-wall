@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Not yet, {{ name }}{% endblock %}
+{% block body_class %}page-countdown{% endblock %}
+
+{% block content %}
+<main class="countdown" data-reveal-at="{{ reveal_at }}">
+  <h1 class="riso-name" data-text="{{ name }}">{{ name }}</h1>
+  <p class="countdown-lede">Your friends and family have been leaving wishes for you. They open at midnight on your birthday.</p>
+
+  <div class="clock" role="timer" aria-live="off">
+    <div><span id="cd-days">0</span><small>days</small></div>
+    <div><span id="cd-hours">00</span><small>hours</small></div>
+    <div><span id="cd-mins">00</span><small>minutes</small></div>
+    <div><span id="cd-secs">00</span><small>seconds</small></div>
+  </div>
+
+  <p class="muted" id="cd-when"></p>
+  <p class="muted small">Keep this link. It is the only way in.</p>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+{% endblock %}

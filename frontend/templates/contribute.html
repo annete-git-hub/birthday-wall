@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Leave a birthday wish{% endblock %}
+{% block body_class %}page-contribute{% endblock %}
+
+{% block content %}
+<main class="contribute" data-token="{{ token }}">
+  <header class="contribute-head">
+    <p class="kicker" id="c-date">Loading…</p>
+    <h1 id="c-title">Leave a birthday wish</h1>
+    <p class="muted" id="c-count"></p>
+  </header>
+
+  <!-- Wall is open -->
+  <form id="wish-form" class="panel wish-form" novalidate hidden>
+    <label>Your name
+      <input type="text" name="sender_name" maxlength="100" autocomplete="name" required>
+    </label>
+
+    <fieldset class="chips">
+      <legend>You are their</legend>
+      <label><input type="radio" name="sender_relation" value="friend" checked><span>Friend</span></label>
+      <label><input type="radio" name="sender_relation" value="family"><span>Family</span></label>
+      <label><input type="radio" name="sender_relation" value="classmate"><span>Classmate</span></label>
+      <label><input type="radio" name="sender_relation" value="colleague"><span>Colleague</span></label>
+      <label><input type="radio" name="sender_relation" value="other"><span>Other</span></label>
+    </fieldset>
+
+    <label>Your message
+      <textarea name="message_text" rows="6" maxlength="2000" placeholder="Write something they will want to read twice"></textarea>
+      <small class="counter"><span id="char-count">0</span> / 2000</small>
+    </label>
+
+    <div class="attach">
+      <span class="attach-label">Add to your wish <small>(up to 5 files)</small></span>
+      <div class="attach-buttons">
+        <label class="btn btn-quiet file-btn">
+          Add photos or videos
+          <input type="file" id="file-input" accept="image/*,video/*,audio/*" multiple>
+        </label>
+        <button class="btn btn-quiet" type="button" id="record-btn">Record a voice note</button>
+      </div>
+      <div class="recorder" id="recorder" hidden>
+        <span class="rec-dot" aria-hidden="true"></span>
+        <span id="rec-time">0:00</span> <small>of 3:00</small>
+        <button class="btn btn-pink" type="button" id="rec-stop">Stop and attach</button>
+        <button class="btn btn-quiet" type="button" id="rec-cancel">Cancel</button>
+      </div>
+      <ul class="attachments" id="attachments"></ul>
+      <small class="muted">Photos up to 10 MB, voice notes 20 MB, videos 50 MB. Audio and video up to 3 minutes.</small>
+    </div>
+
+    <p class="form-error" role="alert"></p>
+
+    <div class="progress" id="progress" hidden><div class="progress-bar" id="progress-bar"></div></div>
+    <button class="btn btn-ink btn-big" type="submit" id="send-btn">Send wish</button>
+  </form>
+
+  <!-- Sent -->
+  <section id="sent" class="panel sent" hidden>
+    <h2>Your wish is on the wall.</h2>
+    <p id="sent-text"></p>
+    <button class="btn btn-quiet" type="button" id="send-another">Send another wish</button>
+  </section>
+
+  <!-- Closed -->
+  <section id="closed" class="panel sent" hidden>
+    <h2>This wall is closed.</h2>
+    <p>The organizer has stopped collecting wishes, or the birthday has already arrived.</p>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/contribute.js') }}"></script>
+{% endblock %}

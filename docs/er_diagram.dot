@@ -1,0 +1,107 @@
+// ER diagram for Birthday Wall.
+// Render with:  dot -Tpng docs/er_diagram.dot -o docs/er_diagram.png
+// Solid lines  = foreign keys enforced by PostgreSQL (crow's foot = "many").
+// Dashed lines = IDs stored in MongoDB documents; NOT enforced by any database.
+
+digraph ER {
+  graph [rankdir=LR, splines=spline, nodesep=0.6, ranksep=1.4, bgcolor="white",
+         fontname="Helvetica", fontsize=20, labelloc=t, pad=0.4,
+         label=<<b>Birthday Wall: ER diagram</b><br/><font point-size="12">Solid lines: enforced foreign keys. Dashed lines: IDs stored in MongoDB, not enforced.</font>>];
+  node  [shape=plaintext, fontname="Helvetica", fontsize=11];
+  edge  [fontname="Helvetica", fontsize=10, color="#1D1A4E", penwidth=1.4];
+
+  subgraph cluster_pg {
+    label=<<b>PostgreSQL</b>>; fontsize=14; style="rounded"; color="#2F5BFF"; penwidth=1.5;
+
+    users [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="5" color="#1D1A4E">
+        <tr><td bgcolor="#2F5BFF" colspan="2"><font color="white"><b>users</b></font></td></tr>
+        <tr><td align="left"><b>PK</b></td><td align="left">user_id</td></tr>
+        <tr><td align="left">UQ</td><td align="left">email</td></tr>
+        <tr><td></td><td align="left">full_name</td></tr>
+        <tr><td></td><td align="left">password_hash</td></tr>
+        <tr><td></td><td align="left">created_at</td></tr>
+      </table>>];
+
+    walls [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="5" color="#1D1A4E">
+        <tr><td bgcolor="#2F5BFF" colspan="2"><font color="white"><b>walls</b></font></td></tr>
+        <tr><td align="left"><b>PK</b></td><td align="left">wall_id</td></tr>
+        <tr><td align="left">FK</td><td align="left">creator_id → users</td></tr>
+        <tr><td align="left">UQ</td><td align="left">contribute_token</td></tr>
+        <tr><td align="left">UQ</td><td align="left">reveal_token</td></tr>
+        <tr><td></td><td align="left">birthday_person_name</td></tr>
+        <tr><td></td><td align="left">birthday_date</td></tr>
+        <tr><td></td><td align="left">reveal_at</td></tr>
+        <tr><td></td><td align="left">is_locked</td></tr>
+        <tr><td></td><td align="left">created_at</td></tr>
+      </table>>];
+
+    wishes [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="5" color="#1D1A4E">
+        <tr><td bgcolor="#2F5BFF" colspan="2"><font color="white"><b>wishes</b></font></td></tr>
+        <tr><td align="left"><b>PK</b></td><td align="left">wish_id</td></tr>
+        <tr><td align="left">FK</td><td align="left">wall_id → walls</td></tr>
+        <tr><td></td><td align="left">sender_name</td></tr>
+        <tr><td></td><td align="left">sender_relation</td></tr>
+        <tr><td></td><td align="left">message_text (nullable)</td></tr>
+        <tr><td></td><td align="left">is_hidden</td></tr>
+        <tr><td></td><td align="left">created_at</td></tr>
+      </table>>];
+
+    media [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="5" color="#1D1A4E">
+        <tr><td bgcolor="#2F5BFF" colspan="2"><font color="white"><b>media</b></font></td></tr>
+        <tr><td align="left"><b>PK</b></td><td align="left">media_id</td></tr>
+        <tr><td align="left">FK</td><td align="left">wish_id → wishes</td></tr>
+        <tr><td></td><td align="left">media_type</td></tr>
+        <tr><td></td><td align="left">file_url</td></tr>
+        <tr><td></td><td align="left">mime_type</td></tr>
+        <tr><td></td><td align="left">file_size_bytes</td></tr>
+        <tr><td></td><td align="left">duration_seconds</td></tr>
+        <tr><td></td><td align="left">uploaded_at</td></tr>
+      </table>>];
+  }
+
+  subgraph cluster_mongo {
+    label=<<b>MongoDB</b>>; fontsize=14; style="rounded,dashed"; color="#E0388A"; penwidth=1.5;
+
+    wall_settings [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="5" color="#1D1A4E">
+        <tr><td bgcolor="#FF4FA3"><b>wall_settings</b></td></tr>
+        <tr><td align="left">wall_id (unique)</td></tr>
+        <tr><td align="left">theme, layout, font</td></tr>
+        <tr><td align="left">colors { }</td></tr>
+        <tr><td align="left">background_music { } (optional)</td></tr>
+        <tr><td align="left">stickers [ ] (optional)</td></tr>
+      </table>>];
+
+    reactions [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="5" color="#1D1A4E">
+        <tr><td bgcolor="#FF4FA3"><b>reactions</b></td></tr>
+        <tr><td align="left">wall_id</td></tr>
+        <tr><td align="left">wish_id</td></tr>
+        <tr><td align="left">emoji</td></tr>
+        <tr><td align="left">unique (wish_id, emoji)</td></tr>
+      </table>>];
+
+    activity_logs [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="5" color="#1D1A4E">
+        <tr><td bgcolor="#FF4FA3"><b>activity_logs</b></td></tr>
+        <tr><td align="left">wall_id</td></tr>
+        <tr><td align="left">event, wish_id</td></tr>
+        <tr><td align="left">device, ip_hash</td></tr>
+        <tr><td align="left">timestamp (TTL 90 days)</td></tr>
+      </table>>];
+  }
+
+  // Relational: one-to-many, enforced, ON DELETE CASCADE
+  users  -> walls  [arrowhead=crowodot, arrowtail=teetee, dir=both, label="  creates (1:N)  "];
+  walls  -> wishes [arrowhead=crowodot, arrowtail=teetee, dir=both, label="  receives (1:N)  "];
+  wishes -> media  [arrowhead=crowodot, arrowtail=teetee, dir=both, label="  has (0 to 5)  "];
+
+  // Cross-database references: logical only
+  walls  -> wall_settings [style=dashed, color="#E0388A", arrowhead=none, xlabel="wall_id"];
+  wishes -> reactions     [style=dashed, color="#E0388A", arrowhead=none, xlabel="wish_id"];
+  walls  -> activity_logs [style=dashed, color="#E0388A", arrowhead=none, xlabel="wall_id"];
+}

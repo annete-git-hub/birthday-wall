@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block body_class %}page-message{% endblock %}
+
+{% block content %}
+<main class="message-page">
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  <a class="btn btn-ink" href="/">Go to Birthday Wall</a>
+</main>
+{% endblock %}

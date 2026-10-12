@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Birthday Wall: collect wishes on one page{% endblock %}
+{% block body_class %}page-home{% endblock %}
+
+{% block content %}
+<header class="topbar">
+  <a class="brand" href="/">Birthday Wall</a>
+  <div class="topbar-user" id="topbar-user" hidden>
+    <span id="user-name"></span>
+    <button class="btn btn-quiet" id="logout-btn" type="button">Log out</button>
+  </div>
+</header>
+
+<!-- ============================ LOGGED OUT ============================ -->
+<main id="view-guest" class="guest" hidden>
+  <section class="hero">
+    <div class="hero-copy">
+      <h1>Every birthday wish, on one wall.</h1>
+      <p class="lede">Make a link, send it to friends and family, and they leave messages,
+        photos, voice notes and videos. On the day, the birthday person opens their own
+        link and finds all of it waiting.</p>
+    </div>
+
+    <div class="hero-stack" aria-hidden="true">
+      <div class="mini-card mini-pink">
+        <p>Happy birthday! Thanks for every 8am lab you dragged me to.</p>
+        <span>Rohan</span>
+      </div>
+      <div class="mini-card mini-yellow">
+        <div class="mini-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <span>Vikram, voice note</span>
+      </div>
+      <div class="mini-card mini-blue">
+        <p>Come home soon, I will make payasam.</p>
+        <span>Amma</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="steps-auth">
+    <ol class="steps">
+      <li><span><strong>Create a wall</strong> with their name and birthday.</span></li>
+      <li><span><strong>Share the friends link</strong> in your group chats.</span></li>
+      <li><span><strong>Send the birthday link</strong> to them. It stays locked until midnight on the day.</span></li>
+    </ol>
+
+    <div class="panel auth-panel">
+      <div class="tabs" role="tablist">
+        <button role="tab" class="tab" id="tab-login" aria-selected="true" aria-controls="form-login">Log in</button>
+        <button role="tab" class="tab" id="tab-register" aria-selected="false" aria-controls="form-register">Create account</button>
+      </div>
+
+      <form id="form-login" class="stack" novalidate>
+        <label>Email <input type="email" name="email" autocomplete="email" required></label>
+        <label>Password <input type="password" name="password" autocomplete="current-password" required></label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn btn-ink" type="submit">Log in</button>
+      </form>
+
+      <form id="form-register" class="stack" novalidate hidden>
+        <label>Your name <input type="text" name="full_name" autocomplete="name" maxlength="100" required></label>
+        <label>Email <input type="email" name="email" autocomplete="email" required></label>
+        <label>Password <input type="password" name="password" autocomplete="new-password" minlength="8" required>
+          <small>At least 8 characters</small></label>
+        <p class="form-error" role="alert"></p>
+        <button class="btn btn-ink" type="submit">Create account</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<!-- ============================ LOGGED IN ============================= -->
+<main id="view-organizer" class="organizer" hidden>
+  <section class="panel create-panel">
+    <h2>Start a new wall</h2>
+    <form id="form-create" class="create-grid" novalidate>
+      <label class="span-2">Whose birthday is it?
+        <input type="text" name="birthday_person_name" maxlength="100" placeholder="Their name" required></label>
+      <label>Birthday
+        <input type="date" name="birthday_date" required></label>
+      <label>Their time zone
+        <select name="timezone">
+          <option value="Asia/Kolkata" selected>India (IST)</option>
+          <option value="Asia/Dubai">Dubai (GST)</option>
+          <option value="Asia/Singapore">Singapore (SGT)</option>
+          <option value="Europe/London">London</option>
+          <option value="Europe/Berlin">Central Europe</option>
+          <option value="America/New_York">US Eastern</option>
+          <option value="America/Chicago">US Central</option>
+          <option value="America/Los_Angeles">US Pacific</option>
+          <option value="Australia/Sydney">Sydney</option>
+        </select></label>
+      <fieldset class="span-2 theme-picker">
+        <legend>Look</legend>
+        <label class="swatch sw-confetti"><input type="radio" name="theme" value="confetti" checked><span>Confetti</span></label>
+        <label class="swatch sw-pastel"><input type="radio" name="theme" value="pastel"><span>Pastel</span></label>
+        <label class="swatch sw-night"><input type="radio" name="theme" value="night"><span>Night</span></label>
+        <label class="swatch sw-retro"><input type="radio" name="theme" value="retro"><span>Retro</span></label>
+        <label class="swatch sw-minimal"><input type="radio" name="theme" value="minimal"><span>Minimal</span></label>
+      </fieldset>
+      <p class="form-error span-2" role="alert"></p>
+      <button class="btn btn-ink span-2" type="submit">Create wall</button>
+    </form>
+
+    <div id="created" class="created" hidden>
+      <h3 id="created-title"></h3>
+      <div class="link-row">
+        <div>
+          <strong>Friends and family link</strong>
+          <p>Share this anywhere. People can add wishes until the birthday.</p>
+          <code id="created-contribute"></code>
+        </div>
+        <button class="btn btn-pink" type="button" data-copy-target="created-contribute">Copy</button>
+      </div>
+      <div class="link-row secret">
+        <div>
+          <strong>Birthday person's link</strong>
+          <p>Send this only to them. It shows a countdown until midnight on their birthday.</p>
+          <code id="created-reveal"></code>
+        </div>
+        <button class="btn btn-blue" type="button" data-copy-target="created-reveal">Copy</button>
+      </div>
+      <button class="btn btn-quiet" type="button" id="create-another">Start another wall</button>
+    </div>
+  </section>
+
+  <section class="walls-section">
+    <h2>Your walls</h2>
+    <div id="walls-list" class="walls-list"></div>
+  </section>
+</main>
+
+<!-- ============================ MANAGE DIALOG ========================= -->
+<dialog id="manage" class="manage">
+  <div class="manage-head">
+    <div>
+      <h2 id="manage-title"></h2>
+      <p id="manage-meta" class="muted"></p>
+    </div>
+    <button class="btn btn-quiet" type="button" data-close>Close</button>
+  </div>
+
+  <div class="manage-body">
+    <section class="manage-links">
+      <div class="link-row">
+        <div><strong>Friends link</strong><code id="manage-contribute"></code></div>
+        <button class="btn btn-pink" type="button" data-copy-target="manage-contribute">Copy</button>
+      </div>
+      <div class="link-row secret">
+        <div><strong>Birthday person's link</strong><code id="manage-reveal"></code></div>
+        <button class="btn btn-blue" type="button" data-copy-target="manage-reveal">Copy</button>
+      </div>
+    </section>
+
+    <section class="manage-controls">
+      <label class="switch">
+        <input type="checkbox" id="manage-lock">
+        <span>Stop accepting new wishes</span>
+      </label>
+      <div class="inline-fields">
+        <label>Look
+          <select id="manage-theme">
+            <option value="confetti">Confetti</option><option value="pastel">Pastel</option>
+            <option value="night">Night</option><option value="retro">Retro</option>
+            <option value="minimal">Minimal</option>
+          </select></label>
+        <label>Layout
+          <select id="manage-layout">
+            <option value="masonry">Scattered</option><option value="grid">Grid</option>
+            <option value="timeline">One column</option>
+          </select></label>
+        <button class="btn btn-quiet" type="button" id="manage-save-look">Save look</button>
+      </div>
+    </section>
+
+    <section>
+      <h3>Wishes so far</h3>
+      <p class="muted">Hidden wishes will not appear on the birthday wall.</p>
+      <ul id="manage-wishes" class="mod-list"></ul>
+    </section>
+
+    <section class="danger-zone">
+      <button class="btn btn-danger" type="button" id="manage-delete">Delete this wall</button>
+      <span class="muted">Removes every wish, photo, voice note and video. This cannot be undone.</span>
+    </section>
+  </div>
+</dialog>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/create.js') }}"></script>
+{% endblock %}

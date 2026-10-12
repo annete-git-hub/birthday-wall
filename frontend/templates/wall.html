@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Happy birthday, {{ name }}{% endblock %}
+{% block body_class %}page-wall theme-confetti layout-masonry{% endblock %}
+
+{% block content %}
+<main class="wall" data-token="{{ token }}">
+  <header class="wall-head">
+    <p class="wall-hb">Happy birthday</p>
+    <h1 class="riso-name" data-text="{{ name }}">{{ name }}</h1>
+    <p class="wall-stats" id="wall-stats"></p>
+    <button class="btn btn-quiet music-btn" type="button" id="music-btn" hidden>Play music</button>
+    <audio id="music" loop preload="none"></audio>
+  </header>
+
+  <section class="wishes" id="wishes" aria-label="Birthday wishes">
+    <p class="muted">Loading your wishes…</p>
+  </section>
+
+  <footer class="wall-foot">
+    <p class="muted">Made with Birthday Wall. <a href="/">Make one for someone else.</a></p>
+  </footer>
+</main>
+
+<dialog id="lightbox" class="lightbox">
+  <button class="btn btn-quiet" type="button" data-close>Close</button>
+  <img id="lightbox-img" alt="">
+</dialog>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/wall.js') }}"></script>
+{% endblock %}
